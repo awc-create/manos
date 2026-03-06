@@ -1,0 +1,16 @@
+# Advanced Vercel build.yml (expand as needed)
+name: Build, Test, and Deploy to Vercel (Advanced)
+on:
+  push:
+    branches: [ dev, main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with: { node-version: '22' }
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: yarn global add vercel
+      - run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }}

@@ -1,0 +1,222 @@
+.page {
+  min-height: 100dvh;  
+  display: grid;
+  place-items: center;
+  padding: clamp(28px, 5vw, 56px) var(--gutter, 24px);
+  background:
+    radial-gradient(circle at top left, rgba(220, 196, 142, 0.10), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #eaefd3 100%);
+  background:
+    radial-gradient(circle at top left, rgba(220, 196, 142, 0.10), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #EAEFD3 100%);
+}
+
+.card {
+  width: min(760px, 100%);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(179, 192, 164, 0.45);
+  box-shadow: 0 22px 70px rgba(39, 35, 58, 0.10);
+  padding: clamp(20px, 3.2vw, 38px);
+  backdrop-filter: blur(10px);
+}
+
+.kicker {
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6F7184;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-family: var(--font-brand);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  font-size: clamp(2.1rem, 3.2vw, 3rem);
+  line-height: 1.1;
+  margin-bottom: 10px;
+  color: #27233A;
+}
+
+.lead {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #505168;
+  max-width: 70ch;
+}
+
+.row {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(179, 192, 164, 0.18);
+  border: 1px solid rgba(179, 192, 164, 0.45);
+  color: #505168;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.private {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(220, 196, 142, 0.75);
+  color: #27233A;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background: rgba(220, 196, 142, 0.16);
+    border-color: #DCC48E;
+    transform: translateY(-1px);
+  }
+}
+
+/* Modal */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(39, 35, 58, 0.28);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.modal {
+  width: min(560px, 100%);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(179, 192, 164, 0.45);
+  box-shadow: 0 25px 90px rgba(39, 35, 58, 0.20);
+  padding: 18px;
+}
+
+.modalTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.modalTitle {
+  font-family: var(--font-brand);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #27233A;
+}
+
+.close {
+  appearance: none;
+  border: 1px solid rgba(179, 192, 164, 0.45);
+  background: rgba(255, 255, 255, 0.8);
+  color: #27233A;
+  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(234, 239, 211, 0.65);
+  }
+}
+
+.modalLead {
+  color: #505168;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.78rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #6F7184;
+  line-height: 1.35;
+}
+
+.input {
+  border-radius: 14px;
+  padding: 12px 12px;
+  border: 1px solid rgba(179, 192, 164, 0.55);
+  background: rgba(255, 255, 255, 0.86);
+  color: #27233A;
+  outline: none;
+
+  &::placeholder {
+    color: rgba(111, 113, 132, 0.8);
+  }
+
+  &:focus {
+    border-color: rgba(220, 196, 142, 0.85);
+    box-shadow: 0 0 0 4px rgba(220, 196, 142, 0.18);
+  }
+}
+
+.error {
+  margin-top: 10px;
+  color: #9a2e2e;
+}
+
+.unlock {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #27233A;
+  color: #FFFFFF;
+  border: 1px solid rgba(39, 35, 58, 0.08);
+  cursor: pointer;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    background: #505168;
+    opacity: 0.98;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+}

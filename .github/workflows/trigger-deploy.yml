@@ -1,0 +1,11 @@
+# Advanced trigger-deploy.yml (expand as needed)
+name: Trigger CI/CD Deployment
+on:
+  push:
+    branches: [ main, dev ]
+    paths-ignore: [ "**.md" ]
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Customize this advanced workflow..."      
