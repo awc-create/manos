@@ -1,0 +1,111 @@
+.section {
+  background: var(--color-bg);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  padding-top: clamp(72px, 10vw, 120px);
+  padding-bottom: clamp(72px, 10vw, 120px);
+  box-sizing: border-box;
+  gap: clamp(20px, 3vw, 36px);
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.header {
+  display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  padding-inline: clamp(18px, 5vw, 64px);
+  flex-shrink: 0;
+}
+
+.eyebrowRow {
+  display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;
+}
+
+.eyebrow {
+  font-size: 0.67rem; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--color-text-muted); white-space: nowrap;
+}
+
+.eyebrowRule {
+  height: 1px; flex: 1;
+  background: linear-gradient(90deg, var(--color-accent-soft, rgba(220,196,142,0.3)) 0%, transparent 100%);
+}
+
+.headerRight {
+  display: flex; align-items: center; gap: 20px; flex-shrink: 0;
+}
+
+.handle {
+  font-size: 0.82rem; font-weight: 500; letter-spacing: 0.04em;
+  color: var(--color-text); text-decoration: none;
+  border-bottom: 1px solid var(--color-accent);
+  padding-bottom: 1px;
+  transition: color 0.2s;
+  &:hover { color: var(--color-accent); }
+}
+
+.dragHint {
+  font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em;
+  color: var(--color-text-muted); text-transform: uppercase; opacity: 0.6;
+}
+
+// ── Track ─────────────────────────────────────────────────────────────────────
+.trackOuter {
+  flex: 1; overflow: hidden;
+  padding-inline: clamp(18px, 5vw, 64px);
+}
+
+.track {
+  height: clamp(200px, 28vw, 360px);
+  overflow: hidden;
+  user-select: none;
+}
+
+.trackInner {
+  display: flex; gap: clamp(8px, 1.2vw, 14px);
+  height: 100%;
+  // Don't wrap — horizontal only
+  width: max-content;
+}
+
+// ── Post ──────────────────────────────────────────────────────────────────────
+.post {
+  position: relative;
+  flex-shrink: 0;
+  // Square aspect — height from parent flex
+  width: clamp(160px, 20vw, 280px);
+  height: 100%;
+  border-radius: 4px; overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(179,192,164,0.15);
+  transition: box-shadow 0.3s ease;
+  &:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.16), 0 0 0 1px rgba(220,196,142,0.3); }
+}
+
+.postBg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  .post:hover & { transform: scale(1.04); }
+}
+
+.postOverlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(12,10,7,0.75) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.postCaption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: clamp(8px,1.2vw,14px);
+  font-size: clamp(0.6rem, 0.72vw, 0.68rem);
+  font-weight: 500; letter-spacing: 0.06em;
+  color: rgba(248,247,244,0.85); line-height: 1.3;
+}
+
+.postIcon {
+  position: absolute; top: 10px; right: 10px;
+  color: rgba(248,247,244,0.7);
+  transition: color 0.2s;
+  .post:hover & { color: rgba(248,247,244,1); }
+}

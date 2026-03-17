@@ -1,49 +1,61 @@
+// src/styles/Global.scss
 /* ======================= */
 /* 🌍 GLOBAL COLOR TOKENS  */
 /* ======================= */
 :root {
-  /* Brand palette */
-  --color-bg: #ffffff;
-  --color-bg-soft: #eaefd3;
-  --color-surface: #ffffff;
+  /* ── Backgrounds ──────────────────────────────────────────
+     Warm off-white foundation. Not clinical white — has a
+     barely-there warmth so photos pop without competing.     */
+  --color-bg:        #F8F7F4;   /* warm white — the base canvas          */
+  --color-bg-soft:   #F2F0EB;   /* 1 step warmer — alternate sections    */
+  --color-bg-muted:  #EAE8E1;   /* subtle tint for cards, inputs         */
+  --color-surface:   #FFFFFF;   /* pure white for elevated surfaces      */
 
-  --color-text: #27233a;
-  --color-text-soft: #505168;
-  --color-text-muted: #6f7184;
+  /* ── Text ─────────────────────────────────────────────────
+     Soft charcoal instead of near-black. Feels warmer,
+     less harsh against the off-white background.            */
+  --color-text:      #2C2A35;   /* soft charcoal — primary text          */
+  --color-text-soft: #54526A;   /* secondary — labels, captions          */
+  --color-text-muted:#8A8799;   /* tertiary — placeholders, fine print   */
 
-  --color-accent: #dcc48e;
-  --color-accent-soft: #b3c0a4;
+  /* ── Accents ──────────────────────────────────────────────
+     Gold and sage unchanged — these ARE the brand colour.   */
+  --color-accent:      #DCC48E; /* warm gold                             */
+  --color-accent-soft: #B3C0A4; /* sage green                            */
 
-  --color-border: rgba(39, 35, 58, 0.1);
-  --color-border-strong: rgba(39, 35, 58, 0.16);
-  --color-overlay: rgba(39, 35, 58, 0.35);
+  /* ── Borders ──────────────────────────────────────────────
+     Warm-tinted, not cool grey.                             */
+  --color-border:       rgba(44, 42, 53, 0.08);
+  --color-border-strong:rgba(44, 42, 53, 0.14);
+  --color-overlay:      rgba(44, 42, 53, 0.32);
 
-  /* Layout */
-  --navbar-height: 70px;
-  --max-content-width: 1200px;
-  --gutter: clamp(18px, 5vw, 64px);
+  /* ── Layout ───────────────────────────────────────────────*/
+  --navbar-height:      70px;
+  --max-content-width:  1200px;
+  --gutter:             clamp(18px, 5vw, 64px);
 
-  /* Spacing */
+  /* ── Spacing ──────────────────────────────────────────────*/
   --space-xs: 8px;
   --space-sm: 16px;
   --space-md: 32px;
   --space-lg: 64px;
   --space-xl: 120px;
 
-  /* Radius */
+  /* ── Radius ───────────────────────────────────────────────*/
   --radius-sm: 10px;
   --radius-md: 18px;
   --radius-lg: 28px;
   --radius-xl: 36px;
 
-  /* Shadow */
-  --shadow-soft: 0 10px 30px rgba(39, 35, 58, 0.08);
-  --shadow-card: 0 18px 60px rgba(39, 35, 58, 0.1);
-  --shadow-premium: 0 30px 90px rgba(39, 35, 58, 0.12);
+  /* ── Shadows ──────────────────────────────────────────────
+     Warmer shadow tint — charcoal-based not pure black.     */
+  --shadow-soft:    0 10px 30px rgba(44, 42, 53, 0.07);
+  --shadow-card:    0 18px 60px rgba(44, 42, 53, 0.09);
+  --shadow-premium: 0 30px 90px rgba(44, 42, 53, 0.11);
 
-  /* Effects */
-  --blur-soft: 14px;
-  --ease-standard: 220ms ease;
+  /* ── Effects ──────────────────────────────────────────────*/
+  --blur-soft:      14px;
+  --ease-standard:  220ms ease;
 }
 
 /* ======================= */
@@ -85,13 +97,13 @@ body {
     sans-serif;
 
   color: var(--color-text);
+
+  /* Warm off-white base — very subtle gold and sage ambient
+     radials so the page has life without competing with photos. */
   background:
-    radial-gradient(circle at top left, rgba(220, 196, 142, 0.12), transparent 24%),
-    radial-gradient(circle at 85% 20%, rgba(179, 192, 164, 0.12), transparent 28%),
-    linear-gradient(180deg, #ffffff 0%, #eaefd3 100%);
-  transition:
-    background 0.3s ease,
-    color 0.3s ease;
+    radial-gradient(ellipse at top left,  rgba(220, 196, 142, 0.09), transparent 32%),
+    radial-gradient(ellipse at 80% 10%,   rgba(179, 192, 164, 0.08), transparent 28%),
+    #F8F7F4;
 
   line-height: 1.5;
   text-rendering: optimizeLegibility;
@@ -121,7 +133,6 @@ main {
   background: transparent;
 }
 
-/* Prevent odd spacing from first child */
 main > *:first-child {
   margin-top: 0;
 }
@@ -198,10 +209,10 @@ button {
   background:
     radial-gradient(circle at center, rgba(255, 255, 255, 0.18), transparent 38%),
     url('/assets/logo/logo-full.png') no-repeat center / min(34vw, 500px);
-  opacity: 0.045;
+  opacity: 0.04;
   pointer-events: none;
   z-index: -1;
-  filter: saturate(0.9);
+  filter: saturate(0.8);
 }
 
 /* ======================= */
@@ -236,30 +247,37 @@ section + section {
   padding-inline: clamp(16px, 4vw, 24px);
 }
 
+/* Slightly warmer tint — alternating sections get depth
+   without any harsh colour shift.                         */
 .section-soft {
   background: var(--color-bg-soft);
 }
 
+.section-muted {
+  background: var(--color-bg-muted);
+}
+
 .section-surface {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(var(--blur-soft));
   -webkit-backdrop-filter: blur(var(--blur-soft));
-  border: 1px solid rgba(179, 192, 164, 0.28);
+  border: 1px solid rgba(179, 192, 164, 0.22);
   box-shadow: var(--shadow-soft);
 }
 
 .section-card {
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(179, 192, 164, 0.32);
+  border: 1px solid rgba(179, 192, 164, 0.28);
   box-shadow: var(--shadow-card);
   border-radius: var(--radius-xl);
 }
 
+/* Dark sections — used sparingly for CTA / testimonial moments */
 .section-dark {
-  background: linear-gradient(180deg, #2c2840 0%, #27233a 100%);
-  color: #ffffff;
+  background: linear-gradient(180deg, #2C2A35 0%, #27233A 100%);
+  color: #F8F7F4;   /* warm white on dark, not pure white */
 }
 
 .section-dark h1,
@@ -272,7 +290,7 @@ section + section {
 .section-dark li,
 .section-dark span,
 .section-dark a {
-  color: #ffffff;
+  color: #F8F7F4;
 }
 
 /* ======================= */
@@ -335,16 +353,11 @@ select:focus {
 }
 
 @keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
+  to { opacity: 1; }
 }
 
 @keyframes floatIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ======================= */
@@ -360,6 +373,6 @@ select:focus {
 
   .background-wrapper {
     background-size: min(56vw, 340px);
-    opacity: 0.038;
+    opacity: 0.032;
   }
 }

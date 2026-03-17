@@ -1,270 +1,492 @@
-// src/components/navbar/floating-dial/FloatingDialNav.module.scss
-.floatingTrigger {
+// Camera mode dial aesthetic — compact, tactile, readable
+
+// ── Trigger ──────────────────────────────────────────────────────────────────
+.trigger {
   position: fixed;
-  left: 24px;
-  bottom: 24px;
+  left: 20px;
+  bottom: 20px;
   z-index: 1200;
-  width: 74px;
-  height: 74px;
+  width: 52px;
+  height: 52px;
   border: none;
   border-radius: 50%;
-  background: var(--color-text);
-  color: #fff;
+  background: #1a1a2e;
+  cursor: pointer;
   display: grid;
   place-items: center;
-  cursor: pointer;
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
-  transition:
-    transform 0.24s ease,
-    box-shadow 0.24s ease;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.06);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.14),
+      0 12px 32px rgba(0, 0, 0, 0.5);
   }
 }
 
-.triggerIcon {
-  font-size: 2rem;
-  line-height: 1;
+.triggerRing {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
 }
 
+.triggerDot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent, #d4a853);
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.triggerLabel {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+}
+
+// ── Overlay ───────────────────────────────────────────────────────────────────
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 1400;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(8, 10, 18, 0);
-  backdrop-filter: blur(0);
+  z-index: 1300;
+  background: rgba(8, 8, 18, 0);
+  backdrop-filter: blur(0px);
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity 0.35s ease,
-    background 0.35s ease,
-    backdrop-filter 0.35s ease;
+    opacity 0.3s ease,
+    backdrop-filter 0.3s ease,
+    background 0.3s ease;
 }
 
 .overlayOpen {
   opacity: 1;
   pointer-events: auto;
-  background: rgba(39, 35, 58, 0.58);
-  backdrop-filter: blur(8px);
+  background: rgba(8, 8, 18, 0.72);
+  backdrop-filter: blur(12px);
 }
 
-.dialStage {
-  position: relative;
-  width: min(90vw, 760px);
-  height: min(90vw, 760px);
+// ── Panel ─────────────────────────────────────────────────────────────────────
+.panel {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 1400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   opacity: 0;
-  transform: scale(0.92);
+  pointer-events: none;
+  transform: translateY(16px) scale(0.96);
+  transform-origin: bottom left;
   transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
+    opacity 0.3s ease,
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.dialStageOpen {
+.panelOpen {
   opacity: 1;
-  transform: scale(1);
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
 }
 
-.pointer {
-  position: absolute;
-  left: 50%;
-  top: calc(50% - 330px);
-  width: 68px;
-  height: 10px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: var(--color-accent);
-  box-shadow: 0 0 20px rgba(220, 196, 142, 0.22);
-  z-index: 4;
+// ── Section label ─────────────────────────────────────────────────────────────
+.sectionLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0 4px;
 }
 
-.dialShell {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
+.sectionLabelText {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
-.dialWheel {
+.sectionLabelHint {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+// ── Dial ──────────────────────────────────────────────────────────────────────
+.dial {
   position: relative;
-  width: min(78vw, 620px);
-  height: min(78vw, 620px);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.08), transparent 22%),
-    radial-gradient(circle at 50% 50%, #505168 0%, #3f4053 62%, #27233a 100%);
-  border: 10px solid var(--color-text);
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.05),
-    inset 0 -8px 24px rgba(0, 0, 0, 0.18),
-    0 24px 50px rgba(0, 0, 0, 0.3);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  width: 320px;
+  height: 320px;
+  cursor: grab;
+  // Extra padding so the knurl ring (-18px inset on ::before) isn't clipped
+  overflow: visible;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.dialDragging .wheel {
+  cursor: grabbing;
+}
+
+// Pointer notch at top
+.notch {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--color-accent, #d4a853);
+  z-index: 10;
+  box-shadow: 0 0 12px rgba(212, 168, 83, 0.6);
 
   &::before {
     content: '';
     position: absolute;
-    inset: -16px;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid var(--color-accent, #d4a853);
+  }
+}
+
+// ── Wheel ─────────────────────────────────────────────────────────────────────
+.wheel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  user-select: none;
+
+  // Inner disc face
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.05) 0%, transparent 45%),
+    radial-gradient(circle, #2a2a40 0%, #18182a 100%);
+
+  // The knurled serrated outer ring — masked to just the rim
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -18px;
     border-radius: 50%;
-    background:
-      radial-gradient(circle, transparent 72%, var(--color-text) 72%, var(--color-text) 100%);
-    -webkit-mask: repeating-conic-gradient(
-      #000 0deg 4deg,
-      transparent 4deg 10deg
+    -webkit-mask: radial-gradient(circle, transparent 82%, #000 82%);
+    mask: radial-gradient(circle, transparent 82%, #000 82%);
+    background: conic-gradient(
+      from 0deg,
+      #111120 0deg,   #111120 3deg,
+      #2a2a3e 3deg,   #2a2a3e 6deg,
+      #111120 6deg,   #111120 9deg,
+      #2a2a3e 9deg,   #2a2a3e 12deg,
+      #111120 12deg,  #111120 15deg,
+      #2a2a3e 15deg,  #2a2a3e 18deg,
+      #111120 18deg,  #111120 21deg,
+      #2a2a3e 21deg,  #2a2a3e 24deg,
+      #111120 24deg,  #111120 27deg,
+      #2a2a3e 27deg,  #2a2a3e 30deg,
+      #111120 30deg,  #111120 33deg,
+      #2a2a3e 33deg,  #2a2a3e 36deg,
+      #111120 36deg,  #111120 39deg,
+      #2a2a3e 39deg,  #2a2a3e 42deg,
+      #111120 42deg,  #111120 45deg,
+      #2a2a3e 45deg,  #2a2a3e 48deg,
+      #111120 48deg,  #111120 51deg,
+      #2a2a3e 51deg,  #2a2a3e 54deg,
+      #111120 54deg,  #111120 57deg,
+      #2a2a3e 57deg,  #2a2a3e 60deg,
+      #111120 60deg,  #111120 63deg,
+      #2a2a3e 63deg,  #2a2a3e 66deg,
+      #111120 66deg,  #111120 69deg,
+      #2a2a3e 69deg,  #2a2a3e 72deg,
+      #111120 72deg,  #111120 75deg,
+      #2a2a3e 75deg,  #2a2a3e 78deg,
+      #111120 78deg,  #111120 81deg,
+      #2a2a3e 81deg,  #2a2a3e 84deg,
+      #111120 84deg,  #111120 87deg,
+      #2a2a3e 87deg,  #2a2a3e 90deg,
+      #111120 90deg,  #111120 93deg,
+      #2a2a3e 93deg,  #2a2a3e 96deg,
+      #111120 96deg,  #111120 99deg,
+      #2a2a3e 99deg,  #2a2a3e 102deg,
+      #111120 102deg, #111120 105deg,
+      #2a2a3e 105deg, #2a2a3e 108deg,
+      #111120 108deg, #111120 111deg,
+      #2a2a3e 111deg, #2a2a3e 114deg,
+      #111120 114deg, #111120 117deg,
+      #2a2a3e 117deg, #2a2a3e 120deg,
+      #111120 120deg, #111120 123deg,
+      #2a2a3e 123deg, #2a2a3e 126deg,
+      #111120 126deg, #111120 129deg,
+      #2a2a3e 129deg, #2a2a3e 132deg,
+      #111120 132deg, #111120 135deg,
+      #2a2a3e 135deg, #2a2a3e 138deg,
+      #111120 138deg, #111120 141deg,
+      #2a2a3e 141deg, #2a2a3e 144deg,
+      #111120 144deg, #111120 147deg,
+      #2a2a3e 147deg, #2a2a3e 150deg,
+      #111120 150deg, #111120 153deg,
+      #2a2a3e 153deg, #2a2a3e 156deg,
+      #111120 156deg, #111120 159deg,
+      #2a2a3e 159deg, #2a2a3e 162deg,
+      #111120 162deg, #111120 165deg,
+      #2a2a3e 165deg, #2a2a3e 168deg,
+      #111120 168deg, #111120 171deg,
+      #2a2a3e 171deg, #2a2a3e 174deg,
+      #111120 174deg, #111120 177deg,
+      #2a2a3e 177deg, #2a2a3e 180deg,
+      #111120 180deg, #111120 183deg,
+      #2a2a3e 183deg, #2a2a3e 186deg,
+      #111120 186deg, #111120 189deg,
+      #2a2a3e 189deg, #2a2a3e 192deg,
+      #111120 192deg, #111120 195deg,
+      #2a2a3e 195deg, #2a2a3e 198deg,
+      #111120 198deg, #111120 201deg,
+      #2a2a3e 201deg, #2a2a3e 204deg,
+      #111120 204deg, #111120 207deg,
+      #2a2a3e 207deg, #2a2a3e 210deg,
+      #111120 210deg, #111120 213deg,
+      #2a2a3e 213deg, #2a2a3e 216deg,
+      #111120 216deg, #111120 219deg,
+      #2a2a3e 219deg, #2a2a3e 222deg,
+      #111120 222deg, #111120 225deg,
+      #2a2a3e 225deg, #2a2a3e 228deg,
+      #111120 228deg, #111120 231deg,
+      #2a2a3e 231deg, #2a2a3e 234deg,
+      #111120 234deg, #111120 237deg,
+      #2a2a3e 237deg, #2a2a3e 240deg,
+      #111120 240deg, #111120 243deg,
+      #2a2a3e 243deg, #2a2a3e 246deg,
+      #111120 246deg, #111120 249deg,
+      #2a2a3e 249deg, #2a2a3e 252deg,
+      #111120 252deg, #111120 255deg,
+      #2a2a3e 255deg, #2a2a3e 258deg,
+      #111120 258deg, #111120 261deg,
+      #2a2a3e 261deg, #2a2a3e 264deg,
+      #111120 264deg, #111120 267deg,
+      #2a2a3e 267deg, #2a2a3e 270deg,
+      #111120 270deg, #111120 273deg,
+      #2a2a3e 273deg, #2a2a3e 276deg,
+      #111120 276deg, #111120 279deg,
+      #2a2a3e 279deg, #2a2a3e 282deg,
+      #111120 282deg, #111120 285deg,
+      #2a2a3e 285deg, #2a2a3e 288deg,
+      #111120 288deg, #111120 291deg,
+      #2a2a3e 291deg, #2a2a3e 294deg,
+      #111120 294deg, #111120 297deg,
+      #2a2a3e 297deg, #2a2a3e 300deg,
+      #111120 300deg, #111120 303deg,
+      #2a2a3e 303deg, #2a2a3e 306deg,
+      #111120 306deg, #111120 309deg,
+      #2a2a3e 309deg, #2a2a3e 312deg,
+      #111120 312deg, #111120 315deg,
+      #2a2a3e 315deg, #2a2a3e 318deg,
+      #111120 318deg, #111120 321deg,
+      #2a2a3e 321deg, #2a2a3e 324deg,
+      #111120 324deg, #111120 327deg,
+      #2a2a3e 327deg, #2a2a3e 330deg,
+      #111120 330deg, #111120 333deg,
+      #2a2a3e 333deg, #2a2a3e 336deg,
+      #111120 336deg, #111120 339deg,
+      #2a2a3e 339deg, #2a2a3e 342deg,
+      #111120 342deg, #111120 345deg,
+      #2a2a3e 345deg, #2a2a3e 348deg,
+      #111120 348deg, #111120 351deg,
+      #2a2a3e 351deg, #2a2a3e 354deg,
+      #111120 354deg, #111120 357deg,
+      #2a2a3e 357deg, #2a2a3e 360deg
     );
-    mask: repeating-conic-gradient(
-      #000 0deg 4deg,
-      transparent 4deg 10deg
-    );
-    opacity: 0.95;
+    z-index: -1;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
   }
 
+  // Inner bevel ring separating knurl from face
   &::after {
     content: '';
     position: absolute;
-    inset: 38px;
+    inset: 0;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 0 0 0 3px rgba(255, 255, 255, 0.06),
+      inset 0 2px 6px rgba(0, 0, 0, 0.4),
+      0 0 0 3px rgba(0, 0, 0, 0.5);
     pointer-events: none;
   }
 }
 
-.dialItem {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 86px;
-  height: 86px;
-  border: none;
-  border-radius: 50%;
-  background: transparent;
-  color: rgba(234, 239, 211, 0.78);
-  transform: translate(-50%, -50%) translate(var(--x), var(--y));
-  cursor: pointer;
-  transition:
-    color 0.25s ease,
-    transform 0.25s ease,
-    opacity 0.25s ease;
-}
+// ── Tick marks (hidden — replaced by knurl) ───────────────────────────────────
+.ticks { display: none; }
+.tick { display: none; }
+.tickMajor { display: none; }
 
-.itemContent {
-  width: 100%;
-  height: 100%;
+// ── Nav items ─────────────────────────────────────────────────────────────────
+.item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 78px;
+  min-height: 28px;
+  height: auto;
+  padding: 5px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
   display: grid;
   place-items: center;
-}
+  transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
 
-.itemInner {
-  font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  line-height: 1;
-}
-
-.activeItem {
-  color: var(--color-accent);
-  transform: translate(-50%, -50%) translate(var(--x), var(--y)) scale(1.08);
-
-  .itemInner {
-    text-shadow: 0 0 18px rgba(220, 196, 142, 0.18);
+  &:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 }
 
-.centerButton {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 180px;
-  height: 180px;
-  transform: translate(-50%, -50%);
-  border: 10px solid var(--color-text);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.1), transparent 20%),
-    radial-gradient(circle, #505168 0%, #27233a 100%);
-  color: #fff;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 18px 36px rgba(0, 0, 0, 0.2);
-  z-index: 3;
+.itemActive {
+  color: var(--color-accent, #d4a853) !important;
+  background: rgba(212, 168, 83, 0.1) !important;
+  border-color: rgba(212, 168, 83, 0.35) !important;
+  box-shadow: 0 0 16px rgba(212, 168, 83, 0.15);
 }
 
-.centerLabel {
-  font-size: 0.92rem;
+.itemLabel {
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  max-width: 110px;
+  white-space: normal;
+  word-break: break-word;
   text-align: center;
+  line-height: 1.25;
+  display: block;
+  pointer-events: none;
 }
 
-@media (max-width: 900px) {
-  .dialWheel {
-    width: min(84vw, 520px);
-    height: min(84vw, 520px);
-  }
+// ── Center hub ────────────────────────────────────────────────────────────────
+.hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110px;
+  height: 110px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at 40% 35%, rgba(255, 255, 255, 0.08), transparent 50%),
+    radial-gradient(circle, #2a2a40 0%, #1a1a2e 100%);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  z-index: 5;
+  box-shadow:
+    0 0 0 6px #1c1c2e,
+    0 0 0 7px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: background 0.2s, box-shadow 0.2s;
 
-  .pointer {
-    top: calc(50% - 280px);
-    width: 54px;
-  }
-
-  .dialItem {
-    width: 72px;
-    height: 72px;
-  }
-
-  .itemInner {
-    font-size: 0.95rem;
-  }
-
-  .centerButton {
-    width: 150px;
-    height: 150px;
+  &:hover {
+    background:
+      radial-gradient(circle at 40% 35%, rgba(255, 255, 255, 0.12), transparent 50%),
+      radial-gradient(circle, #30304a 0%, #1e1e32 100%);
+    box-shadow:
+      0 0 0 6px #1c1c2e,
+      0 0 0 7px rgba(255, 255, 255, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 12px 32px rgba(0, 0, 0, 0.5);
   }
 }
 
+.hubIcon {
+  font-size: 1.1rem;
+  color: var(--color-accent, #d4a853);
+  line-height: 1;
+}
+
+.hubLabel {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 72px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+// ── Close ─────────────────────────────────────────────────────────────────────
+.closeBtn {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.24);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
 @media (max-width: 640px) {
-  .floatingTrigger {
-    left: 16px;
-    bottom: 16px;
-    width: 64px;
-    height: 64px;
+  .panel {
+    left: 12px;
+    bottom: 12px;
   }
 
-  .dialWheel {
-    width: min(88vw, 400px);
-    height: min(88vw, 400px);
+  .trigger {
+    left: 12px;
+    bottom: 12px;
+    width: 46px;
+    height: 46px;
   }
 
-  .pointer {
-    top: calc(50% - 220px);
-    width: 42px;
-    height: 8px;
+  .dial {
+    width: 270px;
+    height: 270px;
   }
 
-  .dialItem {
-    width: 60px;
-    height: 60px;
+  .tick {
+    transform-origin: 0.5px -119px;
   }
 
-  .itemInner {
-    font-size: 0.78rem;
+  .tickMajor {
+    transform-origin: 0.75px -113px;
   }
 
-  .centerButton {
-    width: 110px;
-    height: 110px;
-  }
-
-  .centerLabel {
-    font-size: 0.72rem;
-    max-width: 78px;
+  .hub {
+    width: 90px;
+    height: 90px;
   }
 }

@@ -1,16 +1,51 @@
-# Advanced Vercel build.yml (expand as needed)
-name: Build, Test, and Deploy to Vercel (Advanced)
+name: Trigger CI/CD Deployment
+
 on:
   push:
-    branches: [ dev, main ]
+    branches: [main-hetz, dev, 'feat/**', 'fix/**']
+  workflow_dispatch:
+    inputs:
+      override_branch:
+        description: 'Branch to send (optional)'
+        required: false
+        default: ''
+
 jobs:
-  deploy:
+  notify-cicd-repo:
     runs-on: ubuntu-latest
+    env:
+      # Set this as a GitHub Actions Variable on the Mada repo (Settings → Secrets and variables → Actions → Variables)
+      # Example: awc-create/multi-site-hetz-cicd
+      TARGET_REPO: ${{ vars.CICD_REPO || 'awc-create/multi-site-hetz-cicd' }}
+      SEND_BRANCH: ${{ github.ref_name }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with: { node-version: '22' }
-      - run: yarn install --frozen-lockfile
-      - run: yarn build
-      - run: yarn global add vercel
-      - run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Apply override on manual runs
+        if: github.event_name == 'workflow_dispatch' && inputs.override_branch != ''
+        run: echo "SEND_BRANCH=${{ inputs.override_branch }}" >> $GITHUB_ENV
+
+      - name: Debug
+        run: |
+          echo "Repo:        ${{ github.repository }}"
+          echo "Branch:      ${{ env.SEND_BRANCH }}"
+          echo "Target CICD: ${{ env.TARGET_REPO }}"
+
+      - name: Send Deployment Trigger
+        env:
+          DISPATCH_SHARED_KEY: ${{ secrets.DISPATCH_SHARED_KEY }}
+        run: |
+          curl -sS -X POST \
+            -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -d @- \
+            https://api.github.com/repos/${{ env.TARGET_REPO }}/dispatches <<JSON
+          {
+            "event_type": "deploy",
+            "client_payload": {
+              "deploy_key": "${DISPATCH_SHARED_KEY}",
+              "repository": "${{ github.repository }}",
+              "repository_name": "${{ github.event.repository.name }}",
+              "branch": "${{ env.SEND_BRANCH }}"
+            }
+          }
+          JSON

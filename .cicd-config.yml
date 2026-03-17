@@ -1,4 +1,15 @@
-project_type: static
-tests:
-  - unit
-deploy_to: vercel
+project_type: node
+slug: everything-visual
+port: 3000
+
+domains:
+  prod: everything-visual.co.uk
+  admin: admin.everything-visual.co.uk
+
+deploy_targets:
+  main-hetz: hetzner
+  dev: vercel
+  preview: vercel
+
+pgadmin_subdomain: dbui
+pgadmin_subdomain: db
