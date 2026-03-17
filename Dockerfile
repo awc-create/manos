@@ -46,8 +46,6 @@ ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_ADMIN_URL
 ARG SITE_URL
 ARG USE_DB
-
-# ✅ ADD: Crisp site id
 ARG NEXT_PUBLIC_CRISP_WEBSITE_ID
 
 # Make them available at build time (Next.js bakes NEXT_PUBLIC_* into client bundle)
@@ -91,12 +89,16 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Prisma folder is useful for migrations at runtime (if you ever exec them)
+# Prisma folder (useful for migrate deploy inside container)
 COPY --from=builder /app/prisma ./prisma
 
-# (Optional) if you run prisma migrate deploy inside the container, you need prisma CLI.
-RUN npm i -g prisma@6.15.0
+# ✅ Standalone doesn't bundle prisma client — copy it explicitly
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
+
+# Prisma CLI for migrations at runtime — version must match package.json
+RUN npm i -g prisma@6.19.0
 
 USER 1001
 EXPOSE 3000
-CMD ["node","server.js"]
+CMD ["node", "server.js"]
