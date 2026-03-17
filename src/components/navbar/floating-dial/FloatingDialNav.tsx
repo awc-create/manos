@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { NAV_LINKS } from '@/config/menu.config';
 import styles from './FloatingDialNav.module.scss';
 
@@ -21,18 +21,22 @@ export default function FloatingDialNav() {
   const baseRotation = -(activeIndex * stepAngle);
   const totalRotation = baseRotation + dragAngle;
 
-  const openMenu = () => setIsOpen(true);
-  const closeMenu = () => {
+  const openMenu = useCallback(() => setIsOpen(true), []);
+
+  const closeMenu = useCallback(() => {
     setIsOpen(false);
     setDragAngle(0);
-  };
+  }, []);
 
-  const handleNavigate = (sectionId: string) => {
-    const el = document.getElementById(sectionId);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setActiveSection(sectionId);
-    closeMenu();
-  };
+  const handleNavigate = useCallback(
+    (sectionId: string) => {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveSection(sectionId);
+      closeMenu();
+    },
+    [closeMenu]
+  );
 
   // Pointer to angle helper
   const pointerAngle = (cx: number, cy: number, px: number, py: number) =>
@@ -71,7 +75,6 @@ export default function FloatingDialNav() {
     const onMouseUp = () => {
       dragStartRef.current = null;
       setIsDragging(false);
-      // Snap to nearest item
       const snapped = Math.round(totalRotation / stepAngle) * stepAngle;
       const snappedIndex = (((-snapped / stepAngle) % items.length) + items.length) % items.length;
       setActiveSection(items[Math.round(snappedIndex) % items.length]?.id ?? activeSection);
@@ -152,7 +155,7 @@ export default function FloatingDialNav() {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
     };
-  }, [isOpen, activeIndex, items, activeSection]);
+  }, [isOpen, activeIndex, items, activeSection, handleNavigate, closeMenu]);
 
   // Scroll spy
   useEffect(() => {
