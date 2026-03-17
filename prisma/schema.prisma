@@ -12,6 +12,22 @@ datasource db {
  * Minimal storage for the Home page hero.
  * Singleton row via unique key.
  */
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  VIEWER
+}
+
 model HeroHome {
   id          String   @id @default(cuid())
   key         String   @unique @default("home")
