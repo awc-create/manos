@@ -75,13 +75,17 @@
 html {
   width: 100%;
   min-height: 100%;
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth removed — it conflicts with the JS scroll-hijack
+     on the home page and causes double-smoothing jank. Individual scrollIntoView
+     calls pass { behavior: 'smooth' } explicitly where needed. */
 }
 
 body {
   width: 100%;
   min-height: 100vh;
   overflow-x: hidden;
+  /* Prevent rubber-band / overscroll glow from fighting the scroll hijack */
+  overscroll-behavior-x: none;
 
   font-family:
     system-ui,

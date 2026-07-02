@@ -4,7 +4,17 @@
 import { motion, useTransform, MotionValue } from 'framer-motion';
 import styles from './Hero.module.scss';
 
-const services = ['Photography', 'Video', '360 VR', 'Digital Content'];
+export type HeroConfig = {
+  kicker: string;
+  role: string;
+  services: string[];
+};
+
+const DEFAULTS: HeroConfig = {
+  kicker: 'Visual Storytelling',
+  role: 'Photographer / Videographer',
+  services: ['Photography', 'Video', '360 VR', 'Digital Content'],
+};
 
 const serviceFlip = {
   hidden: { opacity: 0, rotateX: 90, y: 12, scale: 0.92 },
@@ -37,10 +47,11 @@ const dotVariant = {
 interface HeroProps {
   progress: MotionValue<number>;
   slot: 'top' | 'bottom';
+  config?: HeroConfig;
 }
 
 // ── HeroTop — kicker pill ─────────────────────────────────────────────────────
-function HeroTop({ progress }: { progress: MotionValue<number> }) {
+function HeroTop({ progress, kicker }: { progress: MotionValue<number>; kicker: string }) {
   const op = useTransform(progress, [0, 0.38], [1, 0]);
   const y = useTransform(progress, [0, 0.38], ['0px', '-10px']);
 
@@ -52,13 +63,21 @@ function HeroTop({ progress }: { progress: MotionValue<number> }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
     >
-      Visual Storytelling
+      {kicker}
     </motion.p>
   );
 }
 
 // ── HeroBottom — role + services ──────────────────────────────────────────────
-function HeroBottom({ progress }: { progress: MotionValue<number> }) {
+function HeroBottom({
+  progress,
+  role,
+  services,
+}: {
+  progress: MotionValue<number>;
+  role: string;
+  services: string[];
+}) {
   const roleOp = useTransform(progress, [0, 0.36], [1, 0]);
   const roleY = useTransform(progress, [0, 0.36], ['0px', '10px']);
   const servicesOp = useTransform(progress, [0, 0.4], [1, 0]);
@@ -73,7 +92,7 @@ function HeroBottom({ progress }: { progress: MotionValue<number> }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
       >
-        Photographer / Videographer
+        {role}
       </motion.p>
 
       <motion.div className={styles.services} style={{ opacity: servicesOp, y: servicesY }}>
@@ -120,9 +139,11 @@ function HeroBottom({ progress }: { progress: MotionValue<number> }) {
   );
 }
 
-// ── Hero — public export, slot prop controls which part renders ───────────────
-export default function Hero({ progress, slot }: HeroProps) {
-  if (slot === 'top') return <HeroTop progress={progress} />;
-  if (slot === 'bottom') return <HeroBottom progress={progress} />;
+// ── Hero — public export ──────────────────────────────────────────────────────
+export default function Hero({ progress, slot, config }: HeroProps) {
+  const { kicker, role, services } = { ...DEFAULTS, ...config };
+
+  if (slot === 'top') return <HeroTop progress={progress} kicker={kicker} />;
+  if (slot === 'bottom') return <HeroBottom progress={progress} role={role} services={services} />;
   return null;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import styles from './Contact.module.scss';
 
@@ -14,17 +14,50 @@ const SERVICES = [
 
 type Status = 'idle' | 'sending' | 'sent';
 
+type ContactConfig = {
+  eyebrow: string;
+  headline: string;
+  sub: string;
+  email: string;
+  phone: string;
+  location: string;
+  successHeadline: string;
+  successBody: string;
+};
+
+const DEFAULTS: ContactConfig = {
+  eyebrow: 'READY?',
+  headline: "Let's bring your vision to life.",
+  sub: 'Reach out to start your custom project today. Every enquiry receives a response within 24 hours.',
+  email: 'hello@everythingvisual.co.uk',
+  phone: '+44 7700 000 000',
+  location: 'UK · Europe · International',
+  successHeadline: 'Message received.',
+  successBody:
+    "We'll be in touch within 24 hours. Looking forward to hearing more about your project.",
+};
+
 const T = { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const };
 
 export default function Contact() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: '-10% 0px' });
 
+  const [config, setConfig] = useState<ContactConfig>(DEFAULTS);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [service, setService] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<Status>('idle');
+
+  useEffect(() => {
+    fetch('/api/contact', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d) setConfig({ ...DEFAULTS, ...d });
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.MouseEvent) {
     e.preventDefault();
@@ -33,6 +66,8 @@ export default function Contact() {
     await new Promise((r) => setTimeout(r, 1200));
     setStatus('sent');
   }
+
+  const phoneRaw = config.phone.replace(/\s+/g, '');
 
   return (
     <section ref={ref} className={styles.section}>
@@ -44,7 +79,7 @@ export default function Contact() {
             animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
             transition={{ ...T, delay: 0.05 }}
           >
-            READY?
+            {config.eyebrow}
           </motion.span>
 
           <motion.h2
@@ -52,11 +87,7 @@ export default function Contact() {
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ ...T, delay: 0.12 }}
           >
-            Let&apos;s bring
-            <br />
-            your vision
-            <br />
-            <em className={styles.em}>to life.</em>
+            {config.headline}
           </motion.h2>
 
           <motion.p
@@ -64,8 +95,7 @@ export default function Contact() {
             animate={inView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ ...T, delay: 0.2 }}
           >
-            Reach out to start your custom project today. Every enquiry receives a response within
-            24 hours.
+            {config.sub}
           </motion.p>
 
           <motion.div
@@ -73,13 +103,13 @@ export default function Contact() {
             animate={inView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ ...T, delay: 0.28 }}
           >
-            <a href="mailto:hello@everythingvisual.co.uk" className={styles.detailLink}>
-              hello@everythingvisual.co.uk
+            <a href={`mailto:${config.email}`} className={styles.detailLink}>
+              {config.email}
             </a>
-            <a href="tel:+447700000000" className={styles.detailLink}>
-              +44 7700 000 000
+            <a href={`tel:${phoneRaw}`} className={styles.detailLink}>
+              {config.phone}
             </a>
-            <span className={styles.detailText}>UK · Europe · International</span>
+            <span className={styles.detailText}>{config.location}</span>
           </motion.div>
         </div>
 
@@ -99,11 +129,8 @@ export default function Contact() {
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               >
                 <span className={styles.thankIcon}>✓</span>
-                <h3 className={styles.thankHeadline}>Message received.</h3>
-                <p className={styles.thankBody}>
-                  We&apos;ll be in touch within 24 hours. Looking forward to hearing more about your
-                  project.
-                </p>
+                <h3 className={styles.thankHeadline}>{config.successHeadline}</h3>
+                <p className={styles.thankBody}>{config.successBody}</p>
               </motion.div>
             ) : (
               <motion.div

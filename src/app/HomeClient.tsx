@@ -13,7 +13,7 @@ import {
 import Image from 'next/image';
 import styles from './page.module.scss';
 
-import Hero from '@/components/home/hero/Hero';
+import Hero, { type HeroConfig } from '@/components/home/hero/Hero';
 import Ethos from '@/components/home/ethos/Ethos';
 import Services from '@/components/home/services/Services';
 import Featured from '@/components/home/featured/Featured';
@@ -58,8 +58,9 @@ const staggerStart = [0, 34, 0, 34];
 const TOTAL = 8; // 0 hero, 1 ethos, 2 services list, 3-6 detail, 7 featured
 const FEATURED_STOP = 7;
 
+// Snappier duration — 1.1s was too long for trackpad inertia to catch up
 const T = {
-  duration: 1.1,
+  duration: 0.75,
   ease: [0.16, 1, 0.3, 1] as const,
 };
 
@@ -67,7 +68,8 @@ function useScrollHijack(
   driverRef: React.RefObject<HTMLDivElement | null>,
   indexMV: ReturnType<typeof useMotionValue<number>>,
   getExpanded: () => boolean,
-  featuredStop: number
+  featuredStop: number,
+  onExitToFlow: () => void
 ) {
   useEffect(() => {
     const el = driverRef.current;
@@ -77,17 +79,30 @@ function useScrollHijack(
     let cur = Math.round(indexMV.get());
     let busy = false;
     let wheelAccum = 0;
-    const THRESH = 50;
+    const THRESH = 60;
     let touchY0 = 0;
+
+    // Cache active state via IntersectionObserver — avoids a
+    // getBoundingClientRect layout-reflow on every single wheel event.
+    let isActive = false;
+    // Once the user exits to the flow section, stop capturing wheel events
+    // entirely until the driver leaves the viewport (IntersectionObserver resets it).
+    let captureDisabled = false;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isActive = entry.isIntersecting;
+        // Reset capture-disabled when driver fully leaves the viewport
+        // so scroll-back works naturally.
+        if (!entry.isIntersecting) captureDisabled = false;
+      },
+      { threshold: 0.01 }
+    );
+    io.observe(driver);
 
     const unsubscribe = indexMV.on('change', (v) => {
       cur = Math.round(v);
     });
-
-    function active() {
-      const r = driver.getBoundingClientRect();
-      return r.top <= 1 && r.bottom >= window.innerHeight - 1;
-    }
 
     function go(dir: 1 | -1) {
       if (busy) return;
@@ -109,20 +124,33 @@ function useScrollHijack(
         ...T,
         onComplete: () => {
           busy = false;
+          // Clear accumulated inertia so trackpad momentum
+          // doesn't immediately trigger the next section.
+          wheelAccum = 0;
         },
       });
     }
 
     const onWheel = (e: WheelEvent) => {
-      if (!active()) return;
+      if (!isActive || captureDisabled) return;
 
       if (cur >= featuredStop && e.deltaY > 0) {
+        // Hand off to natural scroll — disable hijack so the
+        // smooth scrollIntoView runs without interference.
+        captureDisabled = true;
+        onExitToFlow();
         wheelAccum = 0;
         return;
       }
 
       e.preventDefault();
-      if (busy) return;
+
+      // While animating, drop incoming events instead of letting
+      // them stack up and fire a burst when busy clears.
+      if (busy) {
+        wheelAccum = 0;
+        return;
+      }
 
       wheelAccum += e.deltaY;
 
@@ -131,38 +159,33 @@ function useScrollHijack(
     };
 
     const onTouchStart = (e: TouchEvent) => {
-      if (active()) touchY0 = e.touches[0].clientY;
+      if (isActive && !captureDisabled) touchY0 = e.touches[0].clientY;
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      if (!active()) return;
-
-      const currentY = e.touches[0].clientY;
-      const delta = touchY0 - currentY;
-
-      if (cur >= featuredStop && delta > 0) {
-        return;
-      }
-
+      if (!isActive || captureDisabled) return;
+      const delta = touchY0 - e.touches[0].clientY;
+      if (cur >= featuredStop && delta > 0) return;
       e.preventDefault();
     };
 
     const onTouchEnd = (e: TouchEvent) => {
-      if (!active()) return;
-
+      if (!isActive || captureDisabled) return;
       const d = touchY0 - e.changedTouches[0].clientY;
-
       if (cur >= featuredStop && d > 0) {
+        captureDisabled = true;
+        onExitToFlow();
         return;
       }
-
       if (Math.abs(d) > 40) go(d > 0 ? 1 : -1);
     };
 
     const onKey = (e: KeyboardEvent) => {
-      if (!active()) return;
+      if (!isActive || captureDisabled) return;
 
       if ((e.key === 'ArrowDown' || e.key === 'PageDown') && cur >= featuredStop) {
+        captureDisabled = true;
+        onExitToFlow();
         return;
       }
 
@@ -184,6 +207,7 @@ function useScrollHijack(
     window.addEventListener('keydown', onKey);
 
     return () => {
+      io.disconnect();
       unsubscribe();
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
@@ -191,7 +215,7 @@ function useScrollHijack(
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('keydown', onKey);
     };
-  }, [driverRef, indexMV, getExpanded, featuredStop]);
+  }, [driverRef, indexMV, getExpanded, featuredStop, onExitToFlow]);
 }
 
 export default function HomeClient() {
@@ -199,11 +223,30 @@ export default function HomeClient() {
   const postFeaturedRef = useRef<HTMLElement>(null);
   const scenePanelRef = useRef<HTMLDivElement>(null);
 
+  const [heroConfig, setHeroConfig] = useState<HeroConfig | undefined>(undefined);
+
+  useEffect(() => {
+    fetch('/api/hero', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setHeroConfig(data as HeroConfig);
+      })
+      .catch(() => {});
+  }, []);
+
   const index = useMotionValue(0);
   const [expanded, setExpanded] = useState(false);
   const getExpanded = useCallback(() => expanded, [expanded]);
 
-  useScrollHijack(wrapperRef, index, getExpanded, FEATURED_STOP);
+  // Defined before useScrollHijack so it can be passed as a stable callback.
+  const handleFeaturedContinue = useCallback(() => {
+    postFeaturedRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, []);
+
+  useScrollHijack(wrapperRef, index, getExpanded, FEATURED_STOP, handleFeaturedContinue);
 
   const p = useTransform(index, [0, 1], [0, 1]);
   const pC = useTransform(p, (v) => Math.min(1, Math.max(0, v)));
@@ -221,9 +264,10 @@ export default function HomeClient() {
 
   const cardsY = useTransform(pC, [0, 1], ['0px', '-32px']);
   const cardsScale = useTransform(pC, [0, 1], [1, 0.78]);
-  const cardsGap = useTransform(pC, [0, 1], ['16px', '4px']);
+  // cardRadius: compositor-safe (no layout reflow)
   const cardRadius = useTransform(pC, [0, 1], ['20px', '6px']);
-  const cardPad = useTransform(pC, [0, 1], ['72%', '40%']);
+  // cardPad (paddingBottom) and cardsGap both trigger layout reflow every frame —
+  // removed. Aspect ratio and gap are now fixed in CSS.
 
   const bridgeP = useTransform(index, [1.28, 1.78], [0, 1]);
   const cardsExitOp = useTransform(index, [1.2, 1.72], [1, 0]);
@@ -267,13 +311,6 @@ export default function HomeClient() {
     animate(index, 2, T);
   }, [index]);
 
-  const handleFeaturedContinue = useCallback(() => {
-    postFeaturedRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  }, []);
-
   return (
     <>
       <main className={styles.main}>
@@ -286,7 +323,7 @@ export default function HomeClient() {
                   pointerEvents: 'none',
                 }}
               >
-                <Hero progress={pC} slot="top" />
+                <Hero progress={pC} slot="top" config={heroConfig} />
 
                 <motion.div className={styles.titleWrap} style={{ x: titleX, scale: titleScale }}>
                   <motion.h1 className={styles.heroTitle} style={{ opacity: heroTitleOp }}>
@@ -305,7 +342,6 @@ export default function HomeClient() {
                   style={{
                     y: cardsY,
                     scale: cardsScale,
-                    gap: cardsGap,
                     opacity: cardsExitOp,
                   }}
                 >
@@ -315,7 +351,7 @@ export default function HomeClient() {
                       className={styles.card}
                       style={{ y: staggers[i], borderRadius: cardRadius }}
                     >
-                      <motion.div className={styles.cardInner} style={{ paddingBottom: cardPad }}>
+                      <motion.div className={styles.cardInner}>
                         <div className={styles.cardMedia}>
                           {card.type === 'video' ? (
                             <video autoPlay muted loop playsInline preload="auto">
@@ -337,7 +373,7 @@ export default function HomeClient() {
                 </motion.div>
 
                 <div className={styles.bottomZone}>
-                  <Hero progress={pC} slot="bottom" />
+                  <Hero progress={pC} slot="bottom" config={heroConfig} />
                   <Ethos progress={pC} exitProgress={bridgeP} />
                 </div>
               </motion.div>

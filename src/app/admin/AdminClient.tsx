@@ -35,17 +35,22 @@ export default function AdminClient() {
   return (
     <div className={styles.admin}>
       <aside className={styles.sidebar}>
+        <div className={styles.sidebarHead}>
+          <span>Studio Panel</span>
+          <strong>Manos</strong>
+        </div>
+
         <button className={styles.toggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
           ☰ Menu
         </button>
 
         {sidebarOpen && (
           <nav className={styles.mobileNav}>
-            <ul>
+            <ul className={styles.navList}>
               {sections.map(({ key, label }) => (
-                <li key={key}>
+                <li key={key} className={styles.navItem}>
                   <button
-                    className={activeSection === key ? styles.active : ''}
+                    className={`${styles.navBtn}${activeSection === key ? ` ${styles.active}` : ''}`}
                     onClick={() => {
                       setActiveSection(key);
                       setSidebarOpen(false);
@@ -60,11 +65,11 @@ export default function AdminClient() {
         )}
 
         <nav className={styles.desktopNav}>
-          <ul>
+          <ul className={styles.navList}>
             {sections.map(({ key, label }) => (
-              <li key={key}>
+              <li key={key} className={styles.navItem}>
                 <button
-                  className={activeSection === key ? styles.active : ''}
+                  className={`${styles.navBtn}${activeSection === key ? ` ${styles.active}` : ''}`}
                   onClick={() => setActiveSection(key)}
                 >
                   {label}

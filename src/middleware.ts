@@ -15,18 +15,21 @@ const LOCK_ENABLED = process.env.SITE_LOCK_ENABLED === 'true';
 const LOCK_COOKIE = process.env.SITE_LOCK_COOKIE || 'site_lock_passed';
 const ADMIN_ROOT = '/admin';
 
-const PUBLIC_HOSTS = new Set([
-  'everything-visual.co.uk',
-  'www.everything-visual.co.uk',
-  'localhost',
-  '127.0.0.1',
-]);
+// Parse the canonical domain from NEXT_PUBLIC_SITE_URL or fall back to SITE_DOMAIN
+function parseSiteDomain(): string {
+  const raw = process.env.SITE_DOMAIN ?? process.env.NEXT_PUBLIC_SITE_URL ?? '';
+  try {
+    return new URL(raw.startsWith('http') ? raw : `https://${raw}`).hostname;
+  } catch {
+    return raw;
+  }
+}
 
-const ADMIN_HOSTS = new Set([
-  'admin.everything-visual.co.uk',
-  'admin.localhost',
-  'admin.127.0.0.1',
-]);
+const SITE_DOMAIN = parseSiteDomain();
+
+const PUBLIC_HOSTS = new Set([SITE_DOMAIN, `www.${SITE_DOMAIN}`, 'localhost', '127.0.0.1']);
+
+const ADMIN_HOSTS = new Set([`admin.${SITE_DOMAIN}`, 'admin.localhost', 'admin.127.0.0.1']);
 
 // ─────────────────────────────────────────
 // Helpers

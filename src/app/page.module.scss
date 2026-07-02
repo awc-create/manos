@@ -89,10 +89,11 @@
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px; /* Static — was animated via JS (layout-thrashing) */
   width: 100%;
   flex-shrink: 0;
   margin-bottom: clamp(52px, 7vw, 80px);
-  will-change: transform;
+  will-change: transform, opacity;
 }
 
 .card {
@@ -106,7 +107,9 @@
 .cardInner {
   position: relative;
   width: 100%;
-  will-change: padding-bottom;
+  /* padding-bottom was animated (layout-reflow per frame) — now fixed.
+     Cards scale via the parent .cards transform instead. */
+  padding-bottom: 58%;
 }
 
 .cardMedia {
